@@ -118,6 +118,12 @@
                 'date': undefined,
                 'dateFormatted': '', // just so that it's easier to read during development
                 'dayID': 'dayID-' + trainings.length,
+                'durationSecondsMin': 0,
+                'durationSecondsMax': 0,
+                'durationSecondsAvg': 0,
+                'lengthMetersMin': 0,
+                'lengthMetersMax': 0,
+                'lengthMetersAvg': 0,
             };
 
             // get training name
@@ -140,6 +146,16 @@
             // iterate over workout sets; a workout set can consists of multiple, separate workouts
             // a separate workout is assumed when the workout type changes in a block
             trainingData.workouts = getWorkoutsPerDay(training, trainings.length);
+
+            // sum up all training infos
+            for (var workout of trainingData.workouts) {
+                trainingData.durationSecondsMin += workout.durationSecondsMin;
+                trainingData.durationSecondsMax += workout.durationSecondsMax;
+                trainingData.durationSecondsAvg += workout.durationSecondsAvg;
+                trainingData.lengthMetersMin += workout.lengthMetersMin;
+                trainingData.lengthMetersMax += workout.lengthMetersMax;
+                trainingData.lengthMetersAvg += workout.lengthMetersAvg;
+            }
 
             trainings.push(trainingData);
         }
