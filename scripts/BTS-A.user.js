@@ -25,19 +25,87 @@
      */
     function betterWorkoutInfo () {
         for (var day of trainings) {
-            for (var workout of day.workouts) {
+            // modify the main boxes with the correct content
+            //console.log(day);
 
-                var durationAvg = moment.duration(workout.durationSecondsAvg, 'seconds');
-                var durationMin = moment.duration(workout.durationSecondsMin, 'seconds');
-                var durationMax = moment.duration(workout.durationSecondsMax, 'seconds');
+            // duration box
+            if (day.durationSecondsAvg > 0) {
+                var durationAvg = moment.duration(day.durationSecondsAvg, 'seconds');
+                var durationMin = moment.duration(day.durationSecondsMin, 'seconds');
+                var durationMax = moment.duration(day.durationSecondsMax, 'seconds');
+                var durationBox = document.getElementById('TIME-' + day.dayID);
+                if (!durationBox) {
+                    var newBox = document.createElement('span');
+                    document.getElementById('LABELBOX-' + day.dayID).prepend(newBox);
+                    newBox.outerHTML = ' <span title="Zeit" class="badge badge-secondary" id="TIME-' + day.dayID + '"><i class="fa fa-clock-o"></i>Xh XXmin</span> ';
+                    durationBox = document.getElementById('TIME-' + day.dayID);
+                }
+                durationBox.style.backgroundColor = '#000000';
+                var durationBoxHTML = '';
+                durationBoxHTML += '<i class="fa fa-clock-o"></i> ';
+                durationBoxHTML += durationAvg.hours() + ':' + durationAvg.minutes().toString().padStart(2, '0');
+                durationBoxHTML += ' h<span style="font-weight: 500;">';
+                if (day.durationSecondsMin != day.durationSecondsMax) {
+                    durationBoxHTML += ' <span style="font-size: 0.8em">(';
+                    durationBoxHTML += durationMin.hours() + ':' + durationMin.minutes().toString().padStart(2, '0') + '-';
+                    durationBoxHTML += durationMax.hours() + ':' + durationMax.minutes().toString().padStart(2, '0') + ' h';
+                    durationBoxHTML += '</span>)';
+                }
+                durationBoxHTML += '</span>';
+                durationBox.innerHTML = durationBoxHTML
                 
+            }
+            // distance box
+            if (day.lengthMetersAvg > 0) {
+                var distanceBox = document.getElementById('DISTANCE-' + day.dayID);
+                if (!distanceBox) {
+                    var newBox = document.createElement('span');
+                    document.getElementById('LABELBOX-' + day.dayID).firstElementChild.after(newBox);
+                    newBox.outerHTML = ' <span title="Distanz" class="badge badge-secondary" id="DISTANCE-' + day.dayID + '"><i class="fa fa-arrows-h"></i>X.Xkm</span> ';
+                    distanceBox = document.getElementById('DISTANCE-' + day.dayID);
+                }
+                distanceBox.style.backgroundColor = '#000000';
+                var distanceBoxHTML = '';
+                distanceBoxHTML += '<i class="fa fa-arrows-h"></i> ';
+                distanceBoxHTML += (Math.round(day.lengthMetersAvg / 100) / 10).toLocaleString();
+                distanceBoxHTML += ' km<span style="font-weight: 500;">';
+                if (day.lengthMetersMin != day.lengthMetersMax) {
+                    distanceBoxHTML += ' <span style="font-size: 0.8em">(';
+                    distanceBoxHTML += (Math.round(day.lengthMetersMin / 100) / 10).toLocaleString() + '-';
+                    distanceBoxHTML += (Math.round(day.lengthMetersMax / 100) / 10).toLocaleString() + ' km';
+                    distanceBoxHTML += '</span>)';
+                }
+                distanceBoxHTML += '</span>';
+                distanceBox.innerHTML = distanceBoxHTML;
+            }
+            // energy box
+            var energyBox = document.getElementById('ENERGY-' + day.dayID)
+            if (energyBox) {
+                energyBox.style.fontWeight = '500';
+                energyBox.children[0].style.fontSize = '0.95em';
+            }
+            // carb box
+            var carbBox = document.getElementById('CARBS-' + day.dayID)
+            if (carbBox) {
+                carbBox.style.fontWeight = '500';
+            }
+            // fat box
+            var fatBox = document.getElementById('FAT-' + day.dayID)
+            if (fatBox) {
+                fatBox.style.fontWeight = '500';
+                fatBox.children[0].style.fontSize = '0.95em';
+            }
+
+            for (var workout of day.workouts) {
+                // add boxes per workout
+
+                // distance data
                 if (workout.lengthMetersAvg > 0) {
                     var distanceBox = document.createElement('span');
                     distanceBox.className = 'badge badge-secondary';
                     distanceBox.style.float = 'right';
                     distanceBox.style.marginLeft = '6px';
-                    distanceBox.style.backgroundColor = '#afca0b';
-                    distanceBox.innerHTML = '<i class="fa fa-arrows-h"></i> ' + (Math.round(workout.lengthMetersAvg / 100) / 10).toLocaleString() + ' km';
+                    distanceBox.style.backgroundColor = '#000000 ';
                     var distanceBoxHTML = '';
                     distanceBoxHTML += '<i class="fa fa-arrows-h"></i> ';
                     distanceBoxHTML += (Math.round(workout.lengthMetersAvg / 100) / 10).toLocaleString();
@@ -53,12 +121,18 @@
 
                     document.getElementById('H3-' + workout.workoutID).appendChild(distanceBox);
                 }
+
+                // duration data
+                var durationAvg = moment.duration(workout.durationSecondsAvg, 'seconds');
+                var durationMin = moment.duration(workout.durationSecondsMin, 'seconds');
+                var durationMax = moment.duration(workout.durationSecondsMax, 'seconds');
+
                 if (workout.durationSecondsAvg > 0) {
                     var durationBox = document.createElement('span');
                     durationBox.className = 'badge badge-secondary';
                     durationBox.style.float = 'right';
                     durationBox.style.marginLeft = '6px';
-                    durationBox.style.backgroundColor = '#afca0b';
+                    durationBox.style.backgroundColor = '#000000';
                     var durationBoxHTML = '';
                     durationBoxHTML += '<i class="fa fa-clock-o"></i> ';
                     durationBoxHTML += durationAvg.hours() + ':' + durationAvg.minutes().toString().padStart(2, '0');
@@ -73,8 +147,6 @@
                     durationBox.innerHTML = durationBoxHTML
                     document.getElementById('H3-' + workout.workoutID).appendChild(durationBox);
                 }
-
-
             }
         }
     }
@@ -141,6 +213,27 @@
                 var dateText = training.getElementsByClassName('training-date')[0].textContent.match(/\d\d\.\d\d\.\d\d\d\d/)[0];
                 trainingData.date = moment(dateText, "DD.MM.YYYY");
                 trainingData.dateFormatted = trainingData.date.format('YYYY-MM-DD');
+            }
+
+            // tag info boxes for later
+            if (training.getElementsByClassName('training-labels').length > 0) {
+                training.getElementsByClassName('training-labels')[0].id = 'LABELBOX-' + trainingData.dayID;
+                for (var infoBox of training.getElementsByClassName('training-labels')[0].children) {
+                    if (infoBox.nodeName == 'SPAN' && infoBox.classList.contains("badge") && infoBox.classList.contains("badge-secondary")) {
+                        var infoIcon = infoBox.querySelector('i');
+                        if (infoIcon.classList.contains('fa-clock-o')) {
+                            infoBox.id = 'TIME-' + trainingData.dayID;
+                        } else if (infoIcon.classList.contains('fa-arrows-h')) {
+                            infoBox.id = 'DISTANCE-' + trainingData.dayID;
+                        } else if (infoIcon.classList.contains('ion-flash')) {
+                            infoBox.id = 'ENERGY-' + trainingData.dayID;
+                        } else if (infoIcon.classList.contains('icon-carbs')) {
+                            infoBox.id = 'CARBS-' + trainingData.dayID;
+                        } else if (infoIcon.classList.contains('ion-waterdrop')) {
+                            infoBox.id = 'FAT-' + trainingData.dayID;
+                        }
+                    }
+                }
             }
 
             // iterate over workout sets; a workout set can consists of multiple, separate workouts
