@@ -398,6 +398,12 @@
                                 }
                             }
 
+                            // fix some layout issues
+                            allPaces[j].style.maxWidth = '140px'; // I always have an additional line break because the field is to narrow
+                            allPaces[j].style.textAlign = 'right'; // numbers are always aligned right
+                            allPaces[j].innerHTML = allPaces[j].textContent.trim().replace(/\n.*/g, ''); // I don't need the secondary info and it makes the other numbers more difficult to read; this is a personal preference
+
+
                             workouts[(workouts.length - 1)].steps.push({
                                 'length': length,
                                 'lengthUnit': lengthUnit,
