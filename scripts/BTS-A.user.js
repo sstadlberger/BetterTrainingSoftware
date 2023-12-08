@@ -15,10 +15,69 @@
 (function() {
     'use strict';
 
-    beautifyStatusButtons();
-
     var trainings = parseDays();
     console.log(trainings);
+    beautifyStatusButtons();
+    betterWorkoutInfo();
+
+    /**
+     * adds precise workout infos to each workout
+     */
+    function betterWorkoutInfo () {
+        for (var day of trainings) {
+            for (var workout of day.workouts) {
+
+                var durationAvg = moment.duration(workout.durationSecondsAvg, 'seconds');
+                var durationMin = moment.duration(workout.durationSecondsMin, 'seconds');
+                var durationMax = moment.duration(workout.durationSecondsMax, 'seconds');
+                
+                if (workout.lengthMetersAvg > 0) {
+                    var distanceBox = document.createElement('span');
+                    distanceBox.className = 'badge badge-secondary';
+                    distanceBox.style.float = 'right';
+                    distanceBox.style.marginLeft = '6px';
+                    distanceBox.style.backgroundColor = '#afca0b';
+                    distanceBox.innerHTML = '<i class="fa fa-arrows-h"></i> ' + (Math.round(workout.lengthMetersAvg / 100) / 10).toLocaleString() + ' km';
+                    var distanceBoxHTML = '';
+                    distanceBoxHTML += '<i class="fa fa-arrows-h"></i> ';
+                    distanceBoxHTML += (Math.round(workout.lengthMetersAvg / 100) / 10).toLocaleString();
+                    distanceBoxHTML += ' km<span style="font-weight: 500;">';
+                    if (workout.lengthMetersMin != workout.lengthMetersMax) {
+                        distanceBoxHTML += ' <span style="font-size: 0.8em">(';
+                        distanceBoxHTML += (Math.round(workout.lengthMetersMin / 100) / 10).toLocaleString() + '-';
+                        distanceBoxHTML += (Math.round(workout.lengthMetersMax / 100) / 10).toLocaleString() + ' km';
+                        distanceBoxHTML += '</span>)';
+                    }
+                    distanceBoxHTML += '</span>';
+                    distanceBox.innerHTML = distanceBoxHTML
+
+                    document.getElementById('H3-' + workout.workoutID).appendChild(distanceBox);
+                }
+                if (workout.durationSecondsAvg > 0) {
+                    var durationBox = document.createElement('span');
+                    durationBox.className = 'badge badge-secondary';
+                    durationBox.style.float = 'right';
+                    durationBox.style.marginLeft = '6px';
+                    durationBox.style.backgroundColor = '#afca0b';
+                    var durationBoxHTML = '';
+                    durationBoxHTML += '<i class="fa fa-clock-o"></i> ';
+                    durationBoxHTML += durationAvg.hours() + ':' + durationAvg.minutes().toString().padStart(2, '0');
+                    durationBoxHTML += ' h<span style="font-weight: 500;">';
+                    if (workout.durationSecondsMin != workout.durationSecondsMax) {
+                        durationBoxHTML += ' <span style="font-size: 0.8em">(';
+                        durationBoxHTML += durationMin.hours() + ':' + durationMin.minutes().toString().padStart(2, '0') + '-';
+                        durationBoxHTML += durationMax.hours() + ':' + durationMax.minutes().toString().padStart(2, '0') + ' h';
+                        durationBoxHTML += '</span>)';
+                    }
+                    durationBoxHTML += '</span>';
+                    durationBox.innerHTML = durationBoxHTML
+                    document.getElementById('H3-' + workout.workoutID).appendChild(durationBox);
+                }
+
+
+            }
+        }
+    }
 
 
     /**
