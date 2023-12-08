@@ -15,8 +15,32 @@
 (function() {
     'use strict';
 
+    beautifyStatusButtons();
+
     var trainings = parseDays();
     console.log(trainings);
+
+
+    /**
+     * removes the double border between the status buttons and removes the info icon for prettier alignment
+     */
+    function beautifyStatusButtons () {
+        for (var box of document.querySelectorAll('div.training-title + div > div > div')) {
+            for (var statusElement of box.children) {
+                // make the borders more even
+                if (statusElement.classList.contains("rounded-left")) {
+                    statusElement.style.borderRight = "none"
+                }
+                if (statusElement.classList.contains("rounded-right")) {
+                    statusElement.style.borderLeft = "none"
+                }
+                // I don't need it, so delete it for nicer button alignment
+                if (statusElement.nodeName == "I") {
+                    statusElement.remove()
+                }
+            }
+        }
+    }
 
 
     /**
