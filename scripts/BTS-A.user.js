@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Better Training Software - Azum
 // @namespace      https://github.com/sstadlberger/BetterTrainingSoftware
-// @version        0.1
+// @version        0.1.1
 // @description    Improves the user exerience in Azum
 // @description:de Macht die Benutzung von Azum besser
 // @author         Stefan Stadlberger
@@ -53,7 +53,7 @@
                 }
                 durationBoxHTML += '</span>';
                 durationBox.innerHTML = durationBoxHTML
-                
+
             }
             // distance box
             if (day.lengthMetersAvg > 0) {
@@ -335,6 +335,10 @@
                                         break;
                                     case 'min':
                                         length += (number * 60);
+                                        lengthUnit = 's';
+                                        break;
+                                    case 's':
+                                        length += number;
                                         lengthUnit = 's';
                                         break;
                                     case 'km':
