@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Better Training Software - Azum
 // @namespace      https://github.com/sstadlberger/BetterTrainingSoftware
-// @version        0.1.1
+// @version        0.2
 // @description    Improves the user exerience in Azum
 // @description:de Macht die Benutzung von Azum besser
 // @author         Stefan Stadlberger
@@ -15,18 +15,39 @@
 (function() {
     'use strict';
 
+    // if the URL param "BTS-A-download-navigate" is present, it will navigate to a plane page
+    // where it will download a JSON of the last two weeks and next two months for external processing
+    //
+    // In my use case I added a bookmark with the URL "https://training.azum.com/users/XXXX/plan/?BTS-A-download-navigate"
+    // to have a one-click-access to the JSON
+    var doNavigate = new URLSearchParams(window.location.search).get('BTS-A-download-navigate');
+    if (doNavigate !== null) {
+        var userID = window.location.href.match(/https:\/\/training.azum.com\/users\/(\d{1,6})/);
+        if (userID && userID.length == 2) {
+            var redirectUrl = 'https://training.azum.com/users/' + userID[1] + '/plan/?';
+            redirectUrl += 'since=' + moment().subtract(2, 'weeks').format('YYYY-MM-DD');
+            redirectUrl += '&until=' + moment().add(2, 'months').format('YYYY-MM-DD');
+            redirectUrl += '&BTS-A-download-download';
+            window.location.href = redirectUrl;
+        }
+    }
+
     var trainings = parseDays();
-    console.log(trainings);
     beautifyStatusButtons();
-    betterWorkoutInfo();
+    betterWorkoutInfo(trainings);
+
+    var doDownload = new URLSearchParams(window.location.search).get('BTS-A-download-download');
+    if (doDownload !== null) {
+        downloadWorkouts(trainings);
+    }
 
     /**
      * adds precise workout infos to each workout
+     * @param {Array} trainings - an array containing all workouts, the same structure as the return from parseDays()
      */
-    function betterWorkoutInfo () {
+    function betterWorkoutInfo (trainings) {
         for (var day of trainings) {
             // modify the main boxes with the correct content
-            //console.log(day);
 
             // duration box
             if (day.durationSecondsAvg > 0) {
@@ -424,6 +445,56 @@
 
         return workouts;
 
+    }
+
+    /**
+     * Downloads all workouts as JSON for further processing
+     * @param {Array} trainings - an array containing all workouts, the same structure as the return from parseDays()
+     */
+    function downloadWorkouts (trainings) {
+
+        if (trainings.length > 0) {
+
+            // get the date range of all trainings
+            var maxDate;
+            var minDate;
+            for (var day of trainings) {
+                // initialize min and max dates to proper moment objects
+                if (!moment.isMoment(maxDate)) {
+                    maxDate = moment(day.date);
+                }
+                if (!moment.isMoment(maxDate)) {
+                    minDate = moment(day.date);
+                }
+
+                // set min/max dates accordingly
+                if (day.date.isAfter(minDate)) {
+                    maxDate = moment(day.date);
+                }
+                if (day.date.isBefore(minDate)) {
+                    minDate = moment(day.date);
+                }
+            }
+
+            // export as file
+            var data = JSON.stringify(trainings, undefined, 4);
+            data += "\n";
+
+            var fileName = 'Trainings ';
+            fileName += minDate.format('YYYY-MM-DD');
+            fileName += ' to ';
+            fileName += maxDate.format('YYYY-MM-DD');
+            fileName += '.json';
+
+            var downloadElement = document.createElement('a');
+            downloadElement.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(data));
+            downloadElement.setAttribute('download', fileName);
+            downloadElement.style.display = 'none';
+            document.body.appendChild(downloadElement);
+            downloadElement.click();
+            document.body.removeChild(downloadElement);
+
+        }
     }
 
 })();
